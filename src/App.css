@@ -1,0 +1,47 @@
+.App-logo {
+  animation: App-logo-spin infinite 20s linear;
+  height: 50px;
+}
+
+.App-header {
+  text-align: center;
+  background-color: #222;
+  height: 100px;
+  padding: 20px;
+  color: white;
+}
+
+.App-title {
+  font-size: 1.0em;
+}
+
+.App-intro {
+  font-size: large;
+}
+
+@keyframes App-logo-spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.mui-container {
+  margin-top: 10px;
+}
+
+.mui-row .mui-col-md-6 textarea{
+  height: 180px;
+  resize: none;
+}
+
+.mui-container .mui-btn,
+.mui-container .pulseLoader {
+  display: block;
+  margin: 20px auto;
+  text-align: center;
+}
+
+.headerColumn .variable-value span.string-value  {
+  display: block;
+  width: 20%;
+  word-wrap: break-word;
+}
