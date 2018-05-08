@@ -2,7 +2,6 @@ import React, { Component } from 'react';
 import logo from './logo.svg';
 import './App.css';
 import axios from 'axios';
-// import Select from 'react-select';
 import ReactJson from 'react-json-view';
 import { Input, Select, Option, Textarea, Container, Row, Col, Button } from 'muicss/react';
 import { PulseLoader } from 'react-spinners';
@@ -40,7 +39,7 @@ class App extends Component {
       data: this.state.body ,
       url: this.state.url
     }
-
+    console.log(options);
     axios.interceptors.response.use(
       response => response,
       error => {
@@ -76,7 +75,7 @@ class App extends Component {
 
   onChangeSelect = (evt) => {
 		this.setState({ 
-      selectedOption: evt.value
+      selectedOption: evt.target.value
     });
   }
   
@@ -136,7 +135,7 @@ class App extends Component {
         <Container>
           <Row>
             <Col md="2">
-              <Select name="methodSelect" defaultValue={this.state.selectedOption} className="selectComponent">
+              <Select name="methodSelect" defaultValue={this.state.selectedOption} className="selectComponent" onChange={this.onChangeSelect.bind(this)}>
                 {
                   this.selectOptions.map(function (option, i) {
                     return <Option key={i} value={option.value} label={option.label} />;
