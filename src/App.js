@@ -18,33 +18,34 @@ class App extends Component {
       invalidHeader: false,
       invalidBody: false,
       loading: false
-    }
+    };
 
     this.selectOptions = [
       { value: 'GET', label: 'GET' },
       { value: 'PUT', label: 'PUT' },
       { value: 'POST', label: 'POST' },
       { value: 'DELETE', label: 'DELETE' }
-    ]
+    ];
   }
 
   onButtonClick = () => {
     this.setState({
       loading: true
-    })
+    });
   
     const options = {
       method: this.state.selectedOption,
       headers: this.state.header,
       data: this.state.body ,
       url: this.state.url
-    }
+    };
+    
     console.log(options);
     axios.interceptors.response.use(
       response => response,
       error => {
         if (typeof error.response === 'undefined') {
-          error.data = "A network error occurred. This could be a CORS issue or a dropped internet connection."
+          error.response = "A network error occurred. This could be a CORS issue or a dropped internet connection."
         }
         return Promise.reject(error);
      }
@@ -56,13 +57,23 @@ class App extends Component {
           console.log("RESPONSE RECEIVED: ", res);
           this.setState({
             codeResponse: res.status,
-            response: res.data.data
+            response: res.data
           });
         },
         (error) => {
-          console.log("AXIOS ERROR: ", JSON.stringify(error));
+          let response;
+          let codeResponse = error.response.status ? error.response.status : false;
+
+          if(error.response.data) {
+            response = error.response.data;
+          } else {
+            console.log("aqui " + error.response);
+            response = [error.response];
+          }
+
           this.setState({
-            response: [error.data]
+            response,
+            codeResponse
           });
         }
       )
@@ -79,10 +90,11 @@ class App extends Component {
     });
   }
   
-  onBlurHeader = (evt) => {
+  onChangeHeader = (evt) => {
     try {
+      let jsonParsed = JSON.parse(evt.target.value);
       this.setState({
-        header: JSON.parse(evt.target.value),
+        header: jsonParsed,
         invalidHeader: false
       });
     } catch(e) {
@@ -99,10 +111,11 @@ class App extends Component {
     }
   }
   
-  onBlurBody = (evt) => {
+  onChangeBody = (evt) => {
     try {
+      let jsonParsed = JSON.parse(evt.target.value);
       this.setState({
-        body: JSON.parse(evt.target.value),
+        body: jsonParsed,
         invalidBody: false
       });
     } catch(e) {
@@ -158,7 +171,7 @@ class App extends Component {
               <Textarea 
                 label="Header" 
                 floatingLabel={true} 
-                onBlur={this.onBlurHeader.bind(this)}
+                onChange={this.onChangeHeader.bind(this)}
                 invalid={this.state.invalidHeader}
               />
               <ReactJson 
@@ -171,7 +184,7 @@ class App extends Component {
               <Textarea 
                 label="Body" 
                 floatingLabel={true} 
-                onBlur={this.onBlurBody.bind(this)}
+                onChange={this.onChangeBody.bind(this)}
                 invalid={this.state.invalidBody}
               />
               <ReactJson 
@@ -201,11 +214,11 @@ class App extends Component {
           <Row>
             <Col md="6" md-offset="3">
               { this.state.response ?
-                  // this.state.response
                   <ReactJson 
                     src={this.state.response} 
                     displayDataTypes={false}
                     enableClipboard={false}
+                    theme={(this.state.codeResponse >= 200 && this.state.codeResponse < 400) ? "apathy:inverted" : "hopscotch"}
                   />
                 :
                   ''
