@@ -3,8 +3,9 @@ import logo from './logo.svg';
 import './App.css';
 import axios from 'axios';
 import ReactJson from 'react-json-view';
-import { Input, Select, Option, Textarea, Container, Row, Col, Button } from 'muicss/react';
+import { Input, Select, Option, Container, Row, Col, Button } from 'muicss/react';
 import { PulseLoader } from 'react-spinners';
+import TypingColumn from './TypingColumn'
 
 class App extends Component {
   constructor(props) {
@@ -89,48 +90,106 @@ class App extends Component {
       selectedOption: evt.target.value
     });
   }
-  
-  onChangeHeader = (evt) => {
+
+  onChangeFunction = (label, evt) => {
     try {
       let jsonParsed = JSON.parse(evt.target.value);
+      let invalidHeader, invalidBody, header, body;
+
+      if (label === "Header") {
+        invalidHeader = false;
+        header = jsonParsed;
+        body = this.state.body;
+        invalidBody = this.state.invalidBody;
+      } else if (label === "Body") {
+        invalidBody = false;
+        header = this.state.header;
+        body = jsonParsed;
+        invalidBody = this.state.invalidHeader;
+      }
+
       this.setState({
-        header: jsonParsed,
-        invalidHeader: false
+        header,
+        body,
+        invalidHeader,
+        invalidBody
       });
     } catch(e) {
       if (evt.target.value !== "") {
+        // if (evt.target.value.trim().slice(-3) === "\",}") {
+        //   evt.target.value = evt.target.value.slice(0, -1) + "\"\":\"\"}";
+        // } else if (evt.target.value.trim().slice(-2) === "\",") {
+        //   evt.target.value += "\"\":\"\"}";
+        // }
+
         this.setState({
-          invalidHeader: true
+          invalidHeader: (label === "Header") ? true : this.state.invalidHeader,
+          invalidBody: (label === "Body") ? true : this.state.invalidBody
         })
       } else {
         this.setState({
-          header: {},
-          invalidHeader: false
+          header: (label === "Header") ? {} : this.state.header,
+          body: (label === "Body") ? {} : this.state.body,
+          invalidHeader: (label === "Header") ? false : this.state.invalidHeader,
+          invalidBody: (label === "Body") ? false : this.state.invalidBody
         });
       }
     }
   }
   
-  onChangeBody = (evt) => {
-    try {
-      let jsonParsed = JSON.parse(evt.target.value);
-      this.setState({
-        body: jsonParsed,
-        invalidBody: false
-      });
-    } catch(e) {
-      if (evt.target.value !== "") {
-        this.setState({
-          invalidBody: true
-        })
-      } else {
-        this.setState({
-          body: {},
-          invalidBody: false
-        });
-      }
-    }
-  }
+  // onChangeHeader = (evt) => {
+  //   try {
+  //     let jsonParsed = JSON.parse(evt.target.value);
+  //     this.setState({
+  //       header: jsonParsed,
+  //       invalidHeader: false
+  //     });
+  //   } catch(e) {
+  //     if (evt.target.value !== "") {
+  //       if (evt.target.value.trim().slice(-3) === "\",}") {
+  //         evt.target.value = evt.target.value.slice(0, -1) + "\"\":\"\"}";
+  //       } else if (evt.target.value.trim().slice(-2) === "\",") {
+  //         evt.target.value += "\"\":\"\"}";
+  //       }
+
+  //       this.setState({
+  //         invalidHeader: true
+  //       })
+  //     } else {
+  //       this.setState({
+  //         header: {},
+  //         invalidHeader: false
+  //       });
+  //     }
+  //   }
+  // }
+  
+  // onChangeBody = (evt) => {
+  //   try {
+  //     let jsonParsed = JSON.parse(evt.target.value);
+  //     this.setState({
+  //       body: jsonParsed,
+  //       invalidBody: false
+  //     });
+  //   } catch(e) {
+  //     if (evt.target.value !== "") {
+  //       if (evt.target.value.trim().slice(-3) === "\",}") {
+  //         evt.target.value = evt.target.value.slice(0, -1) + "\"\":\"\"}";
+  //       } else if (evt.target.value.trim().slice(-2) === "\",") {
+  //         evt.target.value += "\"\":\"\"}";
+  //       }
+
+  //       this.setState({
+  //         invalidBody: true
+  //       })
+  //     } else {
+  //       this.setState({
+  //         body: {},
+  //         invalidBody: false
+  //       });
+  //     }
+  //   }
+  // }
 
   changeURL = (evt) => {
     this.setState({
@@ -166,33 +225,20 @@ class App extends Component {
               />
             </Col>
           </Row>
-          <Row>
-            <Col md="6" className="headerColumn">
-              <Textarea 
-                label="Header" 
-                floatingLabel={true} 
-                onChange={this.onChangeHeader.bind(this)}
-                invalid={this.state.invalidHeader}
-              />
-              <ReactJson 
-                src={this.state.header} 
-                displayDataTypes={false}
-                enableClipboard={false}
-              />
-            </Col>
-            <Col md="6" className="bodyColumn">
-              <Textarea 
-                label="Body" 
-                floatingLabel={true} 
-                onChange={this.onChangeBody.bind(this)}
-                invalid={this.state.invalidBody}
-              />
-              <ReactJson 
-                src={this.state.body} 
-                displayDataTypes={false}
-                enableClipboard={false}
-              />
-            </Col>
+          <Row>            
+            <TypingColumn 
+              label="Header" 
+              onChangeFunction={this.onChangeFunction} 
+              invalid={this.state.invalidHeader} 
+              parsedJSON={this.state.header}
+            />
+
+            <TypingColumn 
+              label="Body" 
+              onChangeFunction={this.onChangeFunction} 
+              invalid={this.state.invalidBody} 
+              parsedJSON={this.state.body}
+            />
           </Row>
           <Row>
             {this.state.loading ? 
